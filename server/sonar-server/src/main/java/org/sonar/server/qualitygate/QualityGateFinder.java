@@ -19,7 +19,7 @@
  */
 package org.sonar.server.qualitygate;
 
-import java.util.Optional;
+import java.util.OptionalLong;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -46,9 +46,9 @@ public class QualityGateFinder {
    * It will first try to get the quality gate explicitly defined on a project, if none it will try to return default quality gate ofI the organization
    */
   public QualityGateData getQualityGate(DbSession dbSession, OrganizationDto organization, ComponentDto component) {
-    Optional<Long> qualityGateId = dbClient.projectQgateAssociationDao().selectQGateIdByComponentId(dbSession, component.getId());
+    OptionalLong qualityGateId = dbClient.projectQgateAssociationDao().selectQGateIdByComponentId(dbSession, component.getId());
     if (qualityGateId.isPresent()) {
-      QualityGateDto qualityGate = checkFound(dbClient.qualityGateDao().selectById(dbSession, qualityGateId.get()), "No quality gate has been found for id %s", qualityGateId);
+      QualityGateDto qualityGate = checkFound(dbClient.qualityGateDao().selectById(dbSession, qualityGateId.getAsLong()), "No quality gate has been found for id %s", qualityGateId);
       return new QualityGateData(qualityGate, false);
     }
     QualityGateDto defaultQualityGate = dbClient.qualityGateDao().selectByOrganizationAndUuid(dbSession, organization, organization.getDefaultQualityGateUuid());
